@@ -1,13 +1,16 @@
+const no_unwrapped_jsx_text = require('./rules/no-unwrapped-jsx-text');
+
 const allRules = {
-  'sort-style-alphabetically': sort_style_alphabetically,
+  'no-unwrapped-jsx-text': no_unwrapped_jsx_text,
 };
 
 const rulesConfig = {
+  plugins: ['@sn'],
   parserOptions: {
     ecmaFeatures: {jsx: true},
   },
   rules: {
-    'sort-style-alphabetically': 2,
+    '@sn/no-unwrapped-jsx-text': 2,
   },
 };
 
