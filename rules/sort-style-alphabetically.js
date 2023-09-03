@@ -1,42 +1,64 @@
 module.exports = {
   meta: {
-    type: 'layout',
+    type: 'suggestion',
+    docs: {
+      description:
+        'Enforce alphabetical ordering of styles within getThemedStyles',
+    },
     fixable: 'code',
   },
-  create: function (context) {
+  create(context) {
     return {
       ObjectExpression(node) {
-        const properties = node.properties;
-
-        const styleProperties = properties
-          .filter((prop) => prop.type === 'Property')
-          .map((prop) => prop.key.name);
-
-        const sortedStyleProperties = [...styleProperties].sort();
-
         if (
-          JSON.stringify(styleProperties) !==
-          JSON.stringify(sortedStyleProperties)
+          node.parent &&
+          node.parent.type === 'ArrowFunctionExpression' &&
+          node.parent.parent &&
+          node.parent.parent.type === 'VariableDeclarator' &&
+          node.parent.parent.id.name === 'getThemedStyles'
         ) {
-          context.report({
-            node: properties[0],
-            messageId: 'alphabeticalOrder',
-            fix(fixer) {
-              const fixes = sortedStyleProperties.map((propName, index) => {
-                const propertyNode = properties[index];
-                const sourceCode = context.getSourceCode();
+          const properties = node.properties;
+          const styles = [];
 
-                const propertyText = sourceCode.getText(propertyNode);
-                const fixedText = `${propName}: ${propertyText}`;
-
-                return fixer.replaceText(propertyNode, fixedText);
+          properties.forEach((property, index) => {
+            if (property.type === 'Property') {
+              styles.push({
+                name: property.key.name,
+                node: property,
               });
-
-              return fixes;
-            },
-            // Specify 'error' severity level for the report
-            severity: 'error',
+            }
           });
+
+          const sortedStyles = styles
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+          for (let i = 0; i < styles.length; i++) {
+            if (styles[i] !== sortedStyles[i]) {
+              context.report({
+                node: styles[i].node,
+                message: 'Styles should be in alphabetical order.',
+                fix: (fixer) => {
+                  const startIndex = styles[i].node.range[0];
+                  const endIndex = styles[i].node.range[1];
+
+                  const sortedStyle = sortedStyles[i];
+                  const sortedNode = sortedStyle.node;
+
+                  return [
+                    fixer.replaceTextRange(
+                      [startIndex, endIndex],
+                      context.getSourceCode().getText(sortedNode),
+                    ),
+                    fixer.replaceTextRange(
+                      sortedNode.range,
+                      context.getSourceCode().getText(styles[i].node),
+                    ),
+                  ];
+                },
+              });
+            }
+          }
         }
       },
     };
