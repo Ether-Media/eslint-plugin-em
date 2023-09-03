@@ -1,0 +1,23 @@
+{
+  "name": "em-sort-style",
+  "version": "1.0.0",
+  "description": "Sort styles alphabetically",
+  "main": "index.js",
+  "prettier": {
+    "bracketSpacing": false,
+    "bracketSameLine": false,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 80,
+    "endOfLine": "lf"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .js"
+  },
+  "author": "EtherMedia",
+  "license": "Copyright",
+  "devDependencies": {
+    "prettier": "^3.0.3"
+  }
+}
