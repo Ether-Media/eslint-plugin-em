@@ -5,12 +5,12 @@ const allRules = {
 };
 
 const rulesConfig = {
-  plugins: ['@sn'],
+  plugins: ['@em'],
   parserOptions: {
     ecmaFeatures: {jsx: true},
   },
   rules: {
-    '@sn/no-unwrapped-jsx-text': 2,
+    '@em/no-unwrapped-jsx-text': 2,
   },
 };
 
