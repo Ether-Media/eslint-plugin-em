@@ -3,7 +3,6 @@ const allRules = {
 };
 
 const rulesConfig = {
-  plugins: [em],
   parserOptions: {
     ecmaFeatures: {jsx: true},
   },
