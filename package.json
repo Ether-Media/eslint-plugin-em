@@ -1,6 +1,6 @@
 {
-  "name": "@em/eslint-plugin",
-  "version": "0.0.6",
+  "name": "@em/eslint-plugin-em",
+  "version": "0.0.7",
   "description": "Sort styles alphabetically",
   "main": "index.js",
   "repository": {
