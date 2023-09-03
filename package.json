@@ -1,5 +1,5 @@
 {
-  "name": "em-sort-style",
+  "name": "em-lint-rules",
   "version": "1.0.0",
   "description": "Sort styles alphabetically",
   "main": "index.js",
