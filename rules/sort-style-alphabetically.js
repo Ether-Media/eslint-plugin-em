@@ -1,36 +1,101 @@
+const {
+  removeSpecialCharacters,
+  filterSiblings,
+  jsxTextFixer,
+} = require('../utils/jsx');
+
+const {
+  LITERAL,
+  TEMPLATE_LITERAL,
+  LOGICAL_EXPRESSION,
+  CONDITIONAL_EXPRESSION,
+  JSX_ELEMENT,
+  JSX_TEXT,
+} = require('../utils/constants');
+
+const RULE_DESCRIPTION =
+  'JSX text that share a common parent with other elements should be wrapped by a <span> tag';
+
 module.exports = {
   meta: {
-    type: 'suggestion',
-    docs: {
-      description:
-        'Enforce alphabetical order of styles in the getThemedStyles function',
-      category: 'Best Practices',
-      recommended: true,
-    },
+    type: 'problem',
     fixable: 'code',
+    docs: {
+      description: RULE_DESCRIPTION,
+      category: 'Possible Errors',
+      url: 'https://sleepnumber.atlassian.net/browse/REPLAT-15092',
+    },
+    messages: {
+      noUnwrappedJSX: 'No unwrapped JSX text',
+    },
   },
-  create(context) {
-    const sourceCode = context.getSourceCode();
-    return {
-      CallExpression(node) {
-        const functionName = node.callee.name;
-        if (functionName === 'getThemedStyles') {
-          const stylesNode = node.arguments[0];
-          if (stylesNode && stylesNode.type === 'ArrowFunctionExpression') {
-            const source = sourceCode.getText(stylesNode.body);
-            const sortedSource = source.split('\n').sort().join('\n');
-            if (sortedSource !== source) {
-              context.report({
-                node: stylesNode.body,
-                message: 'Styles should be sorted alphabetically.',
-                fix(fixer) {
-                  return fixer.replaceText(stylesNode.body, sortedSource);
-                },
-              });
-            }
-          }
+  create: (context) => ({
+    JSXExpressionContainer(element) {
+      const {expression, range, parent} = element;
+
+      if (filterSiblings(range, parent.children).length === 0) {
+        return null;
+      }
+
+      if (expression.type === LOGICAL_EXPRESSION) {
+        const {right} = expression;
+
+        if (right.type === LITERAL) {
+          return context.report({
+            node: expression.right,
+            messageId: 'noUnwrappedJSX',
+            fix: (fixer) =>
+              fixer.replaceText(right, `<span>${right.value}</span>`),
+          });
+        } else if (right.type === TEMPLATE_LITERAL) {
+          return context.report({
+            node: element,
+            messageId: 'noUnwrappedJSX',
+            fix: (fixer) => [
+              fixer.insertTextBefore(element, '<span>'),
+              fixer.insertTextAfter(element, '</span>'),
+            ],
+          });
         }
-      },
-    };
-  },
+      } else if (
+        expression.type === TEMPLATE_LITERAL ||
+        (expression.type === CONDITIONAL_EXPRESSION &&
+          expression.consequent.type !== JSX_ELEMENT &&
+          expression.alternate.type !== JSX_ELEMENT)
+      ) {
+        return context.report({
+          node: element,
+          messageId: 'noUnwrappedJSX',
+          fix: (fixer) => [
+            fixer.insertTextBefore(element, '<span>'),
+            fixer.insertTextAfter(element, '</span>'),
+          ],
+        });
+      }
+
+      return null;
+    },
+    JSXText(element) {
+      const {range, parent} = element;
+
+      const siblings = filterSiblings(range, parent.children);
+      if (
+        siblings.length === 0 ||
+        siblings.every(({type}) => type === JSX_TEXT)
+      ) {
+        return null;
+      }
+
+      if (removeSpecialCharacters(element.value)) {
+        const {loc, text} = jsxTextFixer(element);
+
+        return context.report({
+          loc,
+          node: element,
+          messageId: 'noUnwrappedJSX',
+          fix: (fixer) => fixer.replaceText(element, text),
+        });
+      }
+    },
+  }),
 };
