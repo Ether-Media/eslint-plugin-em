@@ -1,6 +1,6 @@
 {
   "name": "em-lint-rules",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Sort styles alphabetically",
   "main": "index.js",
   "prettier": {
