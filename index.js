@@ -1,7 +1,7 @@
-const no_unwrapped_jsx_text = require('./rules/no-unwrapped-jsx-text');
+const sort_style_alphabetically = require('./rules/sort-style-alphabetically.js');
 
 const allRules = {
-  'no-unwrapped-jsx-text': no_unwrapped_jsx_text,
+  'sort-style-alphabetically': sort_style_alphabetically,
 };
 
 const rulesConfig = {
@@ -10,7 +10,7 @@ const rulesConfig = {
     ecmaFeatures: {jsx: true},
   },
   rules: {
-    '@em/no-unwrapped-jsx-text': 2,
+    '@em/sort_style_alphabetically': 2,
   },
 };
 
