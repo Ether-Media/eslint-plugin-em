@@ -10,7 +10,7 @@ const rulesConfig = {
     ecmaFeatures: {jsx: true},
   },
   rules: {
-    '@em/sort_style_alphabetically': 2,
+    '@em/sort-style-alphabetically': 2,
   },
 };
 
